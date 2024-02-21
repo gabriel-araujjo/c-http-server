@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.txt": "plaintext",
+        "in.h": "c",
+        "http.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "api.h": "c"
+    }
+}

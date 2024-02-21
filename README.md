@@ -1,0 +1,2 @@
+- serve json from route
+- use external postgres
