@@ -5,6 +5,11 @@
         "http.h": "c",
         "stdio.h": "c",
         "string.h": "c",
-        "api.h": "c"
+        "api.h": "c",
+        "stdlib.h": "c",
+        "libpq-fe.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "db.h": "c"
     }
 }

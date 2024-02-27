@@ -39,7 +39,7 @@ http_response* http_response_create(enum http_status_code status_code, char* bod
     }
     r->status = (char*)status;
     r->content_type = "application/json";
-    r->body = body;
+    r->body = body != NULL ? body : "";
     return r;
 }
 
@@ -119,12 +119,13 @@ char* http_get_request(int client_fd) {
 }
 
 void http_send_response(int client_fd, http_response* r) {
-    char* body = r->body != NULL ? r->body : "";
+    int content_length = strlen(r->body);
 
     char* output = (char*)malloc(sizeof(char) * BUFFER_SIZE);
     snprintf(output, BUFFER_SIZE, "HTTP/1.1 %d %s\r\n"
                 "Content-Type: %s\r\n"
-                 "\r\n%s", r->status_code, r->status, r->content_type, body);
+                "Content-Length: %d\r\n"
+                 "\r\n%s", r->status_code, r->status, r->content_type, content_length, r->body);
     int resp_len = strlen(output);
     printf("response to send: %s\n", output);
 

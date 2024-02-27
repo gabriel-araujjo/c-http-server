@@ -1,0 +1,27 @@
+#ifndef db_h
+#define db_h
+
+#include <libpq-fe.h>
+#include <pthread.h>
+
+#include "generic_types.h"
+
+/**
+ * Thread-safe connection pool implementation for postgresql
+*/
+typedef struct db_conn_pool {
+    stack* connections;
+    doubly_linked_list* allocated;
+    int empty;
+    pthread_mutex_t* mtx;
+    pthread_cond_t* connections_available;
+} db_conn_pool;
+
+db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo);
+void db_conn_pool_free(db_conn_pool* p);
+PGconn* db_conn_pool_pop(db_conn_pool* p);
+int db_conn_pool_push(db_conn_pool* p, PGconn* c);
+
+int connection_equals(void* curr, void* conn);
+
+#endif
