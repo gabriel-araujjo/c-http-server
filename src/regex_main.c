@@ -27,6 +27,14 @@ int main(int argc, char** argv) {
     size_t s = strlen("\r\n");
     printf("len: %ld\n", s);
 
+    // char buff2[300] = "POST /clientes/75678/transacoes HTTP/1.1\r\n"
+    // "Host: localhost:8090\r\n"
+    // "User-Agent: curl/7.68.0\r\n"
+    // "Accept: */*\r\n"
+    // "Content-Length: 15\r\n"
+    // "Content-Type: application/x-www-form-urlencoded\r\n"
+    // "\r\n"
+    // "{\"key\":\"value\"}";
     char buff2[300] = "POST /clientes/75678/transacoes HTTP/1.1\r\n"
     "Host: localhost:8090\r\n"
     "User-Agent: curl/7.68.0\r\n"
@@ -34,10 +42,11 @@ int main(int argc, char** argv) {
     "Content-Length: 15\r\n"
     "Content-Type: application/x-www-form-urlencoded\r\n"
     "\r\n"
-    "{\"key\":\"value\"}";
+    "{\"valor\":1000000,\"tipo\":\"c\",\"descricao\":\"teste test\"}";
 
     // regcomp(&regex, "User-Agent: ([A-Za-z0-9\\./]{1,})", REG_EXTENDED);
-    regcomp(&regex, "\r\n(\\{.*\\})", REG_EXTENDED);
+    regcomp(&regex, "\r\n(\\{[\"a-zA-Z0-9:,_ ]{1,}\\}$)", REG_EXTENDED);
+    // regcomp(&regex, "\r\n(\\{.*\\})", REG_EXTENDED);
 
     if (regexec(&regex, buff2, 2, matches, 0) == 0) {
         buff2[matches[1].rm_eo] = '\0';

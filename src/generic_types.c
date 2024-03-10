@@ -106,7 +106,6 @@ void* stack_pop(stack* s) {
     node* n = s->head;
     s->head = n->next;
     void* data = n->data;
-    // printf("dt: %ld\n", data);
     free(n);
     n = NULL;
     return data;

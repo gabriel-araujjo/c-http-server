@@ -6,13 +6,6 @@ int connection_equals(void* curr, void* conn) {
     return curr == conn;
 }
 
-// TODO: remove, exists only for test purposes
-void* free_pqconn(void* arg) {
-    PGconn* c = (PGconn*) arg;
-    PQfinish(c);
-    return NULL;
-}
-
 db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
     db_conn_pool* p = malloc(sizeof(db_conn_pool));
     p->mtx = malloc(sizeof(pthread_mutex_t));
@@ -27,9 +20,9 @@ db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
             printf("Error opening %d connection to server: %s\n", i, PQerrorMessage(conn));
             PQfinish(conn);
         }
-        printf("Success opening %d connection to server with ptr %ld\n", i, conn);
         stack_push(p->connections, conn);
     }
+    printf("[db_thread_pool] %d connections opened\n", max_connections);
 
     p->empty = 0;
 
@@ -73,7 +66,7 @@ PGconn* db_conn_pool_pop(db_conn_pool* p) {
 }
 
 int db_conn_pool_push(db_conn_pool* p, PGconn* c) {
-    printf("conn %ld\n", c);
+    // printf("conn %ld\n", c);
     pthread_mutex_lock(p->mtx);
 
     int inserted = stack_push(p->connections, c);

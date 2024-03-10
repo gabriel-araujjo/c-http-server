@@ -10,6 +10,15 @@
         "libpq-fe.h": "c",
         "array": "c",
         "string_view": "c",
-        "db.h": "c"
+        "db.h": "c",
+        "generic_types.h": "c",
+        "pthread.h": "c",
+        "regex.h": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "queue.h": "c",
+        "numbers": "c",
+        "utils.h": "c",
+        "repository.h": "c"
     }
 }
