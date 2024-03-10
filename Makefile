@@ -7,7 +7,7 @@ build: clean
 
 docker_build: clean build
 	@ docker login docker.io/lfmtsml
-	@ docker build -t c-simple-web-server .
+	@ docker build --platform linux/amd64 -t c-simple-web-server .
 	@ docker tag c-simple-web-server lfmtsml/c-simple-web-server:latest
 	@ docker push lfmtsml/c-simple-web-server:latest
 
