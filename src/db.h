@@ -11,8 +11,10 @@
 */
 typedef struct db_conn_pool {
     stack* connections;
-    doubly_linked_list* allocated;
     int empty;
+    int max_connections;
+    int allocated;
+    char* conn_info;
     pthread_mutex_t* mtx;
     pthread_cond_t* connections_available;
 } db_conn_pool;

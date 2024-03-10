@@ -1,9 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
 #include "db.h"
 
 int connection_equals(void* curr, void* conn) {
     return curr == conn;
+}
+
+void* db_conn_pool_connection_creator(void* args) {
+    db_conn_pool* p = (db_conn_pool*)args;
+    printf("Creating connection pool\n");
+    int opened = 0;
+    for (int i = 0; i < p->max_connections; i++) {
+        PGconn* conn = PQconnectdb(p->conn_info);
+        if (PQstatus(conn) != CONNECTION_OK) {
+            printf("Error opening connection %d to server: %s\n", i, PQerrorMessage(conn));
+            PQfinish(conn);
+            continue;
+        }
+        opened++;
+        db_conn_pool_push(p, conn);
+    }
+    printf("[db_thread_pool] %d connections opened\n", opened);
+    p->allocated = 1;
 }
 
 db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
@@ -14,17 +34,12 @@ db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
     pthread_cond_init(p->connections_available, NULL);
     p->connections = stack_create((void*)(void*)&PQfinish);
 
-    for (int i = 0; i < max_connections; i++) {
-        PGconn* conn = PQconnectdb(conninfo);
-        if (PQstatus(conn) != CONNECTION_OK) {
-            printf("Error opening %d connection to server: %s\n", i, PQerrorMessage(conn));
-            PQfinish(conn);
-        }
-        stack_push(p->connections, conn);
-    }
-    printf("[db_thread_pool] %d connections opened\n", max_connections);
-
-    p->empty = 0;
+    p->max_connections = max_connections;
+    p->empty = 1;
+    p->allocated = 0;
+    int len = sizeof(char) + strlen(conninfo);
+    p->conn_info = malloc(len);
+    snprintf(p->conn_info, len, "%s", conninfo);
 
     return p;
 }
@@ -33,6 +48,7 @@ void db_conn_pool_free(db_conn_pool* p) {
     pthread_mutex_lock(p->mtx);
 
     stack_free(p->connections);
+    free(p->conn_info);
 
     pthread_mutex_unlock(p->mtx);
     pthread_mutex_destroy(p->mtx);
@@ -45,8 +61,13 @@ void db_conn_pool_free(db_conn_pool* p) {
 PGconn* db_conn_pool_pop(db_conn_pool* p) {
     pthread_mutex_lock(p->mtx);
 
-    if (p->empty) {
+    if (p->empty || !p->allocated) {
         printf("Waiting available connnections on thread\n");
+        if (!p->allocated) {
+            pthread_t tid;
+            pthread_create(&tid, NULL, db_conn_pool_connection_creator, (void*)p);
+            pthread_detach(tid);
+        }
         pthread_cond_wait(p->connections_available, p->mtx);
     }
 
@@ -66,7 +87,6 @@ PGconn* db_conn_pool_pop(db_conn_pool* p) {
 }
 
 int db_conn_pool_push(db_conn_pool* p, PGconn* c) {
-    // printf("conn %ld\n", c);
     pthread_mutex_lock(p->mtx);
 
     int inserted = stack_push(p->connections, c);
@@ -75,6 +95,8 @@ int db_conn_pool_push(db_conn_pool* p, PGconn* c) {
         pthread_mutex_unlock(p->mtx);
         return 0;   
     }
+
+    if (!p->allocated) p->allocated = 1;
 
     if (p->empty) {
         printf("Signaling that there's a free connection now %d\n", p->empty);
