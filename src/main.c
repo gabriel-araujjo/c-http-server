@@ -19,16 +19,16 @@ int main(int argc, char** argv) {
     printf("Using args - max_connections=%d, http_thread_pool_size=%d, db_conn_pool_size=%d\n", max_connections, thread_pool_size, db_conn_pool_size);
 
     db_conn_pool* p = db_conn_pool_create(50, "dbname=db user=admin password=admin host=db port=5432");
-    printf("created conn pool: %p\n", p);
+    printf("created conn pool: %p\n", (void*)p);
 
     client_repository_t* r = client_repository_create(p);
-    printf("created repository: %p\n", r);
+    printf("created repository: %p\n", (void*)r);
 
     client_service_t* c = client_service_create(r);
-    printf("created client service: %p\n", c);
+    printf("created client service: %p\n", (void*)c);
 
     extract_service_t* e = extract_service_create(r);
-    printf("created extract service: %p\n", c);
+    printf("created extract service: %p\n", (void*)c);
 
     FILE* f = fopen("./logs.txt", "a+");
     if (!f) {

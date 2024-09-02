@@ -12,11 +12,9 @@ const char DATE_FORMAT[28] = "2011-10-08T07:07:09.123456Z";
 char* date_iso_now() {
     time_t now = time(NULL);
 
-    int milliseconds;
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
-    milliseconds = lrint(tv.tv_usec/1000.);
     
     int len = strlen(DATE_FORMAT);
 

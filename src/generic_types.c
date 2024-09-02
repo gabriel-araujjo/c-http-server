@@ -14,9 +14,10 @@ void linked_list_free(linked_list* l) {
     if (!l) return;
     if (!l->current) return;
     node* n = NULL;
-    while (l->current) {
-        n = l->current;
-        l = l->current->next;
+    node* c = l->current;
+    while (c) {
+        n = c;
+        c = c->next;
         l->dt_free_fn(n->data);
         free(n);
     }

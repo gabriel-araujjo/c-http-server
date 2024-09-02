@@ -24,6 +24,7 @@ void* db_conn_pool_connection_creator(void* args) {
     }
     printf("[db_thread_pool] %d connections opened\n", opened);
     p->allocated = 1;
+    return NULL;
 }
 
 db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
@@ -32,7 +33,7 @@ db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
     p->connections_available = malloc(sizeof(pthread_cond_t));
     pthread_mutex_init(p->mtx, NULL);
     pthread_cond_init(p->connections_available, NULL);
-    p->connections = stack_create((void*)(void*)&PQfinish);
+    p->connections = stack_create((data_free_fn)&PQfinish);
 
     p->max_connections = max_connections;
     p->empty = 1;

@@ -31,7 +31,7 @@ Some improvements which can be cited are:
 
 - Support for graceful exit would be cool, so database connections can be closed at server shutdown;
 - A JSON handling library would improve the overall code and get rid with excessive C-style string operations;
-- Stack allocation and cache-awareness: there's a ton of heap allocations throughout the code; a smarter use of stack variables could improve overall performance and decrese cache-misses during CPU instruction loading;
+- Stack allocation and cache-awareness: there's a ton of heap allocations throughout the code; a smarter use of stack variables could improve overall performance and decrease cache-misses during CPU instruction loading;
 - Extension: the code is currently not extensible, and is deeply attached to the REST API definition (schema, inputs/outputs)
 - Portability: just a single external library was necessary, but this code makes use of several Linux-native libraries;
 - Benchmarking: currently, there are no benchmarks for the code;

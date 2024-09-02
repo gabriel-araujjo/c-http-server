@@ -197,7 +197,7 @@ db_operation_result_t* client_repository_get_extract(client_repository_t* r, int
         db_conn_pool_push(r->pool, conn);
         free(id_str);
         response->err = err;
-        response->err = DB_GENERAL_ERROR;
+        response->err_status = DB_GENERAL_ERROR;
         printf("Error executing select for 'clientes': %s\n", err);
         return response;
     }

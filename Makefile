@@ -3,7 +3,7 @@ zip:
 	@ zip -r simple-web-server .
 
 build: clean
-	@ gcc -v -Wall -std=c99 src/generic_types.c src/queue.c src/http.c src/api/api.c src/api/api_types.c src/api/repository.c src/api/utils.c src/db.c src/main.c -o build/main -I /usr/include/postgresql/ -lpq -lpthread -lm
+	@ gcc -Wall -Wpedantic -Wextra -std=c99 src/generic_types.c src/queue.c src/http.c src/api/api.c src/api/api_types.c src/api/repository.c src/api/utils.c src/db.c src/main.c -o build/main -I /usr/include/postgresql/ -lpq -lpthread -lm
 
 docker_build: clean build
 	@ docker login docker.io/lfmtsml

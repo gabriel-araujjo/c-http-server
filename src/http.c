@@ -92,9 +92,7 @@ http_server* http_create_server(FILE* f, int port, int max_connections, int thre
     *s->port = port;
 
     s->endpoints = linked_list_create(&free, NULL);
-    int result = regcomp(s->body_regex, JSON_BODY_BASIC_REGEX, REG_EXTENDED);
-    char err[100];
-    regerror(result, s->body_regex, &err, 100);
+    regcomp(s->body_regex, JSON_BODY_BASIC_REGEX, REG_EXTENDED);
 
     int server_fd;
     struct sockaddr_in server_addr;
@@ -198,7 +196,7 @@ int http_client_pool_add(http_client_pool* p, int* client_fd) {
 
 char* http_get_request(int* client_fd) {
     char* buffer = (char*)malloc(sizeof(char) * BUFFER_SIZE);
-    size_t bytes_received;
+    ssize_t bytes_received;
 
     if ((bytes_received = recv(*client_fd, buffer, BUFFER_SIZE, 0)) < 0) {
         printf("Error reading request data\n");
@@ -288,7 +286,7 @@ void* http_serve_request(void* args) {
             continue;
         }
 
-        printf("[thread=%p] received fd %d to process\n", pthread_self(), *client_fd);
+        printf("[thread=%ld] received fd %d to process\n", pthread_self(), *client_fd);
 
         if (!s || !s->endpoints || !s->endpoints->current) return NULL;
 
@@ -357,6 +355,7 @@ void http_serve(FILE* f, http_server* s) {
 
         printf("[total=%03d] Received request with fd %d. Adding to queue\n", ++total, *client_fd);
         int status = http_client_pool_add(s->client_pool, client_fd);
+        if (!status) break;
 
         fflush(f);
     }
