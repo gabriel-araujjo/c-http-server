@@ -22,6 +22,12 @@ void* db_conn_pool_connection_creator(void* args) {
         opened++;
         db_conn_pool_push(p, conn);
     }
+    if (!opened) {
+        p->last_err = malloc(sizeof(db_conn_err));
+        p->last_err->err_code = -1;
+        p->last_err->err_msg = "Could not open connections to database";
+        pthread_cond_signal(p->connections_available);
+    }
     printf("[db_thread_pool] %d connections opened\n", opened);
     p->allocated = 1;
     return NULL;
@@ -42,6 +48,8 @@ db_conn_pool* db_conn_pool_create(int max_connections, char* conninfo) {
     p->conn_info = malloc(len);
     snprintf(p->conn_info, len, "%s", conninfo);
 
+    p->last_err = NULL;
+
     return p;
 }
 
@@ -50,6 +58,7 @@ void db_conn_pool_free(db_conn_pool* p) {
 
     stack_free(p->connections);
     free(p->conn_info);
+    if (p->last_err) free(p->last_err);
 
     pthread_mutex_unlock(p->mtx);
     pthread_mutex_destroy(p->mtx);
@@ -70,6 +79,10 @@ PGconn* db_conn_pool_pop(db_conn_pool* p) {
             pthread_detach(tid);
         }
         pthread_cond_wait(p->connections_available, p->mtx);
+    }
+
+    if (p->last_err) {
+        return NULL;
     }
 
     PGconn* conn = NULL;

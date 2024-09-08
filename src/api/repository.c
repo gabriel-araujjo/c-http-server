@@ -47,6 +47,11 @@ db_operation_result_t* client_repository_create_transaction(client_repository_t*
     db_operation_result_t* response = db_operation_result_create(&transaction_response_dto_free);
 
     PGconn* conn = db_conn_pool_pop(r->pool);
+    if (!conn) {
+        response->err = "Could not open connection to database";
+        response->err_status = DB_GENERAL_ERROR;
+        return response;
+    }
 
     PGresult* res = PQexec(conn, "BEGIN");
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
@@ -187,6 +192,11 @@ db_operation_result_t* client_repository_get_extract(client_repository_t* r, int
     db_operation_result_t* response = db_operation_result_create(&extract_response_dto_free);
 
     PGconn* conn = db_conn_pool_pop(r->pool);
+    if (!conn) {
+        response->err = "Could not open connection to database";
+        response->err_status = DB_GENERAL_ERROR;
+        return response;
+    }
 
     char* id_str = itoa(*id);
     const char* params[] = {id_str};

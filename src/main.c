@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     // TODO: I could manually listen for a SIGTERM signal and free allocated 
     // resources here for graceful finishing, but the OS will do that after process
-    // termination. The only scenarion that makes sense is using SIGTERM to finish 
+    // termination. The only scenario that makes sense is using SIGTERM to finish 
     // database connections gracefully
     return 0;
 }

@@ -6,6 +6,11 @@
 
 #include "generic_types.h"
 
+typedef struct db_conn_err {
+    char* err_msg;
+    int err_code;
+} db_conn_err;
+
 /**
  * Thread-safe connection pool implementation for postgresql
 */
@@ -14,6 +19,7 @@ typedef struct db_conn_pool {
     int empty;
     int max_connections;
     int allocated;
+    db_conn_err* last_err;
     char* conn_info;
     pthread_mutex_t* mtx;
     pthread_cond_t* connections_available;
