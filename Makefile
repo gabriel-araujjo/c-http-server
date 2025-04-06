@@ -2,6 +2,10 @@ zip:
 	@ rm simple-web-server.zip
 	@ zip -r simple-web-server .
 
+build_epoll:
+	@ mkdir -p build
+	@ gcc -o build/epoll-server epoll/main.c epoll/http.c epoll/server.c epoll/mux.c
+
 build: clean
 	@ gcc -Wall -Wpedantic -Wextra -std=c99 src/generic_types.c src/queue.c src/http.c src/api/api.c src/api/api_types.c src/api/repository.c src/api/utils.c src/db.c src/main.c -o build/main -I /usr/include/postgresql/ -lpq -lpthread -lm
 
